@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Taxista Calc</title>
+<meta name="description" content="Calculadora rápida de viagens para corretor de reboque/transporte de seguradora.">
+<meta name="theme-color" content="#1f6feb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Taxista Calc">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ===================== TELA: CALCULAR ===================== -->
+<main id="telaCalcular" class="screen ativa">
+  <header class="topo">
+    <div>
+      <h1>Taxista Calc</h1>
+      <div class="subtitulo">Decisão rápida de viagem</div>
+    </div>
+    <button id="btnAbrirCalc" class="btn-icone" title="Calculadora" aria-label="Abrir calculadora">🧮</button>
+  </header>
+
+  <section class="card">
+    <div class="linha-3">
+      <div class="campo">
+        <label for="kmBaseOrigem">Km base→origem</label>
+        <input id="kmBaseOrigem" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="kmOrigemDestino">Km origem→destino</label>
+        <input id="kmOrigemDestino" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="kmDestinoBase">Km destino→base</label>
+        <input id="kmDestinoBase" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="linha-2">
+      <div class="campo">
+        <label for="ratePerKm">R$/km (seguradora)</label>
+        <input id="ratePerKm" type="text" inputmode="decimal" placeholder="1,80" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="driverOffer">Oferta ao taxista (R$)</label>
+        <input id="driverOffer" type="text" inputmode="decimal" placeholder="opcional" autocomplete="off">
+      </div>
+    </div>
+    <div class="linha-2" style="margin-top:8px">
+      <div class="campo">
+        <label for="taxPercent">Imposto %</label>
+        <input id="taxPercent" type="text" inputmode="decimal" placeholder="10" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="marginPercent">Margem %</label>
+        <input id="marginPercent" type="text" inputmode="decimal" placeholder="10" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section class="card resultados">
+    <div class="resultado-linha">
+      <span class="rotulo">Km total</span>
+      <span class="valor" id="resTotalKm">0,0 km</span>
+    </div>
+  </section>
+
+  <div id="bannerStatus" class="banner-status">
+    <div class="titulo-status" id="bannerTitulo"></div>
+    <div class="detalhe-status" id="bannerDetalhe"></div>
+  </div>
+
+  <div class="destaques-grid">
+    <div class="destaque total">
+      <div class="rotulo-destaque">Valor total da viagem</div>
+      <div class="valor-destaque" id="resTripValue">R$ 0,00</div>
+      <div class="valor-destaque-km" id="resTripValuePerKm">R$ 0,00/km</div>
+    </div>
+    <div class="destaque ideal">
+      <div class="rotulo-destaque">Ideal (c/ margem)</div>
+      <div class="valor-destaque" id="resIdeal">R$ 0,00</div>
+      <div class="valor-destaque-km" id="resIdealPerKm">R$ 0,00/km</div>
+    </div>
+  </div>
+
+  <section class="card resultados">
+    <div class="resultado-linha">
+      <span class="rotulo">Teto (sem pagar imposto)</span>
+      <span class="valor" id="resCeiling">R$ 0,00 <small id="resCeilingPerKm">R$ 0,00/km</small></span>
+    </div>
+    <div class="resultado-linha">
+      <span class="rotulo">Imposto a pagar</span>
+      <span class="valor" id="resTaxAmount">R$ 0,00 <small id="resTaxAmountPerKm">R$ 0,00/km</small></span>
+    </div>
+    <div class="resultado-linha">
+      <span class="rotulo" id="rotuloLucro">Lucro estimado (pagando o ideal)</span>
+      <span class="valor" id="resProfit">R$ 0,00 <small id="resProfitPerKm">R$ 0,00/km</small></span>
+    </div>
+  </section>
+
+  <div class="linha-botoes">
+    <button id="btnLimpar" class="btn btn-secundario">Limpar</button>
+    <button id="btnSalvarViagem" class="btn btn-primario btn-bloco">Salvar viagem</button>
+  </div>
+</main>
+
+<!-- ===================== TELA: HISTÓRICO ===================== -->
+<main id="telaHistorico" class="screen">
+  <header class="topo">
+    <div>
+      <h1>Histórico</h1>
+      <div class="subtitulo">Viagens salvas</div>
+    </div>
+    <select id="filtroMes" class="filtro-mes" aria-label="Filtrar por mês"></select>
+  </header>
+
+  <div class="totais-historico">
+    <div class="total-item"><div class="rotulo">Viagens</div><div class="valor" id="totalViagens">0</div></div>
+    <div class="total-item"><div class="rotulo">Valor total</div><div class="valor" id="totalTripValue">R$ 0,00</div></div>
+    <div class="total-item"><div class="rotulo">Imposto estimado</div><div class="valor" id="totalTax">R$ 0,00</div></div>
+    <div class="total-item"><div class="rotulo">Pago a motoristas</div><div class="valor" id="totalPago">R$ 0,00</div></div>
+    <div class="total-item" style="grid-column: span 2"><div class="rotulo">Lucro total</div><div class="valor" id="totalLucro">R$ 0,00</div></div>
+  </div>
+
+  <div id="listaViagens" class="lista-viagens"></div>
+
+  <button id="btnExportarCSV" class="btn btn-secundario btn-bloco">Exportar CSV (contador)</button>
+</main>
+
+<!-- ===================== TELA: CONFIG ===================== -->
+<main id="telaConfig" class="screen">
+  <header class="topo">
+    <div>
+      <h1>Configurações</h1>
+      <div class="subtitulo">Padrões e backup</div>
+    </div>
+  </header>
+
+  <section class="card form-config">
+    <div class="linha-form">
+      <div class="campo">
+        <label for="cfgTax">Imposto % padrão</label>
+        <input id="cfgTax" type="text" inputmode="decimal" placeholder="10">
+      </div>
+      <div class="campo">
+        <label for="cfgMargin">Margem % padrão</label>
+        <input id="cfgMargin" type="text" inputmode="decimal" placeholder="10">
+      </div>
+    </div>
+    <div class="campo">
+      <label for="cfgRate">R$/km padrão (opcional)</label>
+      <input id="cfgRate" type="text" inputmode="decimal" placeholder="ex: 1,80">
+    </div>
+    <button id="btnSalvarConfig" class="btn btn-primario btn-bloco">Salvar padrões</button>
+  </section>
+
+  <section class="card">
+    <label style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Motoristas</label>
+    <div class="linha-form" style="margin-top:6px">
+      <input id="inputNovoMotorista" type="text" placeholder="Nome do motorista">
+      <button id="btnAddMotorista" class="btn btn-secundario">Adicionar</button>
+    </div>
+    <div id="listaMotoristas" class="lista-motoristas" style="margin-top:8px"></div>
+  </section>
+
+  <section class="card">
+    <label style="font-size:12.5px;font-weight:600;color:var(--text-muted)">Backup</label>
+    <div class="linha-botoes" style="margin-top:8px">
+      <button id="btnExportarBackup" class="btn btn-secundario btn-bloco">Exportar backup (JSON)</button>
+    </div>
+    <div class="linha-botoes" style="margin-top:8px">
+      <button id="btnImportarBackup" class="btn btn-secundario btn-bloco">Importar backup (JSON)</button>
+      <input id="inputImportarBackup" type="file" accept="application/json" style="display:none">
+    </div>
+  </section>
+
+  <section class="card" id="cardInstalar" style="display:none">
+    <button id="btnInstalar" class="btn btn-primario btn-bloco">Instalar app na tela inicial</button>
+  </section>
+
+  <section class="card">
+    <div class="subtitulo" style="text-align:center">Taxista Calc · funciona 100% offline</div>
+  </section>
+</main>
+
+<!-- ===================== NAV INFERIOR ===================== -->
+<nav class="nav-inferior">
+  <button id="navCalcular" class="ativo" data-tela="telaCalcular">
+    <span class="icone-nav">🧾</span>Calcular
+  </button>
+  <button id="navHistorico" data-tela="telaHistorico">
+    <span class="icone-nav">📜</span>Histórico
+  </button>
+  <button id="navConfig" data-tela="telaConfig">
+    <span class="icone-nav">⚙️</span>Config
+  </button>
+</nav>
+
+<!-- ===================== DRAWER: CALCULADORA ===================== -->
+<div id="overlayCalc" class="overlay">
+  <div class="modal">
+    <div class="modal-cabecalho">
+      <h2>Calculadora</h2>
+      <button class="btn-icone" id="btnFecharCalc" aria-label="Fechar">✕</button>
+    </div>
+    <div class="visor-calc" id="visorCalc">0</div>
+    <div class="teclado-calc">
+      <button class="func" data-key="C">C</button>
+      <button class="func" data-key="back">⌫</button>
+      <button class="func" data-key="%">%</button>
+      <button class="op" data-key="/">÷</button>
+
+      <button data-key="7">7</button>
+      <button data-key="8">8</button>
+      <button data-key="9">9</button>
+      <button class="op" data-key="*">×</button>
+
+      <button data-key="4">4</button>
+      <button data-key="5">5</button>
+      <button data-key="6">6</button>
+      <button class="op" data-key="-">−</button>
+
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+      <button class="op" data-key="+">+</button>
+
+      <button data-key="0" style="grid-column: span 2">0</button>
+      <button data-key=",">,</button>
+      <button class="op" data-key="=">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: SALVAR VIAGEM ===================== -->
+<div id="overlaySalvar" class="overlay modal-central-wrap">
+  <div class="modal modal-central">
+    <div class="modal-cabecalho">
+      <h2>Salvar viagem</h2>
+      <button class="btn-icone" id="btnFecharSalvar" aria-label="Fechar">✕</button>
+    </div>
+    <div class="campo">
+      <label for="inputLabel">Rótulo (opcional)</label>
+      <input id="inputLabel" type="text" placeholder="ex: Ibatiba → Vitória">
+    </div>
+    <div class="campo">
+      <label for="inputMotorista">Motorista (opcional)</label>
+      <input id="inputMotorista" type="text" list="dataListMotoristas" placeholder="Nome">
+      <datalist id="dataListMotoristas"></datalist>
+    </div>
+    <div class="campo">
+      <label for="inputValorFinal">Valor final pago ao motorista (R$)</label>
+      <input id="inputValorFinal" type="text" inputmode="decimal" placeholder="0,00">
+    </div>
+    <button id="btnConfirmarSalvar" class="btn btn-primario btn-bloco">Confirmar</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL: DETALHE DA VIAGEM ===================== -->
+<div id="overlayDetalhe" class="overlay modal-central-wrap">
+  <div class="modal modal-central">
+    <div class="modal-cabecalho">
+      <h2 id="detalheTitulo">Viagem</h2>
+      <button class="btn-icone" id="btnFecharDetalhe" aria-label="Fechar">✕</button>
+    </div>
+    <div class="resultados" id="detalheConteudo"></div>
+    <div class="campo">
+      <label for="detalheMotorista">Motorista</label>
+      <input id="detalheMotorista" type="text" list="dataListMotoristas">
+    </div>
+    <div class="campo">
+      <label for="detalheValorFinal">Valor final pago (R$)</label>
+      <input id="detalheValorFinal" type="text" inputmode="decimal">
+    </div>
+    <div class="linha-botoes">
+      <button id="btnSalvarDetalhe" class="btn btn-primario btn-bloco">Salvar alterações</button>
+    </div>
+    <div class="linha-botoes">
+      <button id="btnReabrirDetalhe" class="btn btn-secundario btn-bloco">Reabrir no cálculo</button>
+    </div>
+    <div class="linha-botoes">
+      <button id="btnExcluirDetalhe" class="btn btn-perigo btn-bloco">Excluir viagem</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/calc.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

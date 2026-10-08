@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Testes — Taxista Calc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: monospace; background: #111; color: #eee; padding: 16px; }
+  h1 { font-size: 18px; }
+  .ok { color: #5fe39a; }
+  .fail { color: #ff8b82; font-weight: bold; }
+  .caso { padding: 4px 0; border-bottom: 1px solid #333; }
+  #resumo { margin-top: 16px; font-size: 16px; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Testes das funções de cálculo (js/calc.js)</h1>
+<div id="saida"></div>
+<div id="resumo"></div>
+
+<script src="js/calc.js"></script>
+<script>
+(function () {
+  'use strict';
+  var Calc = window.TaxistaCalc;
+  var saida = document.getElementById('saida');
+  var total = 0, falhas = 0;
+
+  function approx(a, b, eps) {
+    eps = eps == null ? 0.01 : eps;
+    return Math.abs(a - b) < eps;
+  }
+
+  function teste(nome, fn) {
+    total++;
+    var linha = document.createElement('div');
+    linha.className = 'caso';
+    try {
+      fn();
+      linha.innerHTML = '<span class="ok">[OK]</span> ' + nome;
+    } catch (e) {
+      falhas++;
+      linha.innerHTML = '<span class="fail">[FALHOU]</span> ' + nome + ' — ' + e.message;
+    }
+    saida.appendChild(linha);
+  }
+
+  function assert(cond, msg) {
+    if (!cond) throw new Error(msg || 'asserção falhou');
+  }
+
+  // ---- Caso do enunciado: tripValue 1000, tax 10%, margin 10% ----
+  teste('Exemplo do enunciado: 1000 / 10% / 10% -> teto 900, ideal 800, lucro 100', function () {
+    var r = Calc.calcularViagem({
+      kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0,
+      ratePerKm: 10, taxPercent: 10, marginPercent: 10,
+      driverOffer: 800
+    });
+    assert(approx(r.tripValue, 1000), 'tripValue deveria ser 1000, veio ' + r.tripValue);
+    assert(approx(r.ceiling, 900), 'teto deveria ser 900, veio ' + r.ceiling);
+    assert(approx(r.ideal, 800), 'ideal deveria ser 800, veio ' + r.ideal);
+    assert(approx(r.profit, 100), 'lucro deveria ser 100, veio ' + r.profit);
+    assert(r.status === 'verde', 'status deveria ser verde, veio ' + r.status);
+  });
+
+  teste('Soma dos 3 trechos de km', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 30, kmOrigemDestino: 50, kmDestinoBase: 20, ratePerKm: 2, taxPercent: 0, marginPercent: 0 });
+    assert(approx(r.totalKm, 100), 'totalKm deveria ser 100, veio ' + r.totalKm);
+    assert(approx(r.tripValue, 200), 'tripValue deveria ser 200, veio ' + r.tripValue);
+  });
+
+  teste('R$/km de teto e ideal são divididos pelo km total', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10 });
+    assert(approx(r.ceilingPerKm, 9), 'ceilingPerKm deveria ser 9, veio ' + r.ceilingPerKm);
+    assert(approx(r.idealPerKm, 8), 'idealPerKm deveria ser 8, veio ' + r.idealPerKm);
+  });
+
+  teste('Oferta igual ao ideal -> status verde', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 800 });
+    assert(r.status === 'verde', 'esperado verde, veio ' + r.status);
+  });
+
+  teste('Oferta entre ideal e teto -> status amarelo, com lucro reduzido', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 850 });
+    assert(r.status === 'amarelo', 'esperado amarelo, veio ' + r.status);
+    assert(approx(r.profit, 50), 'lucro deveria ser 50, veio ' + r.profit);
+  });
+
+  teste('Oferta acima do teto -> status vermelho, com prejuízo calculado', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 950 });
+    assert(r.status === 'vermelho', 'esperado vermelho, veio ' + r.status);
+    assert(approx(r.lossAmount, 50), 'prejuízo deveria ser 50, veio ' + r.lossAmount);
+  });
+
+  teste('Sem oferta preenchida -> status nulo, sem lucro', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: null });
+    assert(r.status === null, 'status deveria ser null, veio ' + r.status);
+    assert(r.profit === null, 'profit deveria ser null, veio ' + r.profit);
+  });
+
+  teste('Km total zero não gera NaN/Infinity em nenhum campo', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: 0, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 50 });
+    Object.keys(r).forEach(function (k) {
+      var v = r[k];
+      if (typeof v === 'number') {
+        assert(isFinite(v), k + ' não é finito: ' + v);
+      }
+    });
+  });
+
+  teste('Valores negativos na entrada são tratados como 0', function () {
+    var r = Calc.calcularViagem({ kmBaseOrigem: -50, kmOrigemDestino: 20, kmDestinoBase: 0, ratePerKm: -5, taxPercent: -10, marginPercent: 10 });
+    assert(r.totalKm >= 0, 'totalKm não pode ser negativo');
+    assert(r.tripValue >= 0, 'tripValue não pode ser negativo');
+  });
+
+  teste('parseNumberBR aceita vírgula decimal', function () {
+    assert(approx(Calc.parseNumberBR('12,5'), 12.5), 'deveria interpretar 12,5 como 12.5');
+  });
+
+  teste('parseNumberBR aceita ponto decimal', function () {
+    assert(approx(Calc.parseNumberBR('12.5'), 12.5), 'deveria interpretar 12.5 como 12.5');
+  });
+
+  teste('parseNumberBR aceita formato BR com milhar: 1.234,56', function () {
+    assert(approx(Calc.parseNumberBR('1.234,56'), 1234.56), 'deveria interpretar 1.234,56 como 1234.56');
+  });
+
+  teste('parseNumberBR trata vazio como 0', function () {
+    assert(Calc.parseNumberBR('') === 0, 'string vazia deveria virar 0');
+  });
+
+  teste('parseNumberBR trata negativo como 0', function () {
+    assert(Calc.parseNumberBR('-10') === 0, 'negativo deveria virar 0');
+  });
+
+  teste('parseNumberBR trata texto inválido como 0', function () {
+    assert(Calc.parseNumberBR('abc') === 0, 'texto inválido deveria virar 0');
+  });
+
+  teste('formatBRL formata no padrão R$ 1.234,56', function () {
+    var s = Calc.formatBRL(1234.5);
+    assert(s.indexOf('1.234,50') !== -1, 'formatação inesperada: ' + s);
+  });
+
+  var resumo = document.getElementById('resumo');
+  resumo.innerHTML = total + ' testes, ' + (total - falhas) + ' passaram, ' +
+    '<span class="' + (falhas ? 'fail' : 'ok') + '">' + falhas + ' falharam</span>';
+})();
+</script>
+</body>
+</html>
