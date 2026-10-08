@@ -28,36 +28,32 @@ Se preferir Node.js:
 npx serve .
 ```
 
-## Como instalar no celular/tablet Android (uso real, offline)
+## Como instalar no celular/tablet (uso real, offline)
 
-O app **precisa estar hospedado em HTTPS** (ou rodando em localhost) para o Chrome permitir instalar. A forma mais simples e gratuita é o GitHub Pages:
+O app já está hospedado em: **https://garapinhapedro-crypto.github.io/taxista-calc/** (via GitHub Pages, grátis). Se quiser subir sua própria cópia, basta dar push para o branch `master` deste repositório — o GitHub Pages já está ativado e republica sozinho em ~1 minuto.
 
-### Hospedar grátis no GitHub Pages
+### Android (Chrome)
 
-1. Crie um repositório novo no GitHub (pode ser privado) e suba todos os arquivos desta pasta (`index.html`, `manifest.json`, `sw.js`, pastas `css/`, `js/`, `icons/`).
-2. No repositório, vá em **Settings → Pages**.
-3. Em "Source", escolha a branch `main` e a pasta `/ (root)`. Salve.
-4. Em alguns minutos o GitHub mostra o endereço, algo como:
-   `https://seu-usuario.github.io/nome-do-repositorio/`
-5. Abra esse endereço no Chrome do celular/tablet.
-
-### Alternativa: Netlify (arrastar e soltar, sem git)
-
-1. Acesse [app.netlify.com/drop](https://app.netlify.com/drop).
-2. Arraste a pasta inteira do projeto (ou um `.zip` dela) para a página.
-3. O Netlify gera uma URL pública em segundos (ex: `https://taxista-calc-xyz.netlify.app`).
-4. Abra essa URL no Chrome do celular.
-
-### Instalar na tela inicial
-
-1. Abra a URL publicada no **Chrome** do Android.
+1. Abra o link acima no **Chrome**.
 2. Toque no menu (⋮) no canto superior direito.
 3. Toque em **"Adicionar à tela inicial"** (ou **"Instalar app"**, se aparecer automaticamente).
 4. Confirme. O ícone do Taxista Calc aparece na tela inicial, abre em tela cheia (sem barra de endereço) e funciona **mesmo sem internet** depois do primeiro carregamento.
 
-Repita o mesmo processo no tablet — é a mesma URL, funciona nos dois aparelhos independentemente, cada um guarda seus próprios dados salvos (localStorage é por aparelho/navegador, não sincroniza sozinho entre eles).
+### iPhone/iPad (Safari)
 
-> **Importante**: depois de instalado, o app guarda todo o cache na primeira abertura. Se você alterar os arquivos no servidor depois (atualização do app), vai precisar também subir uma nova versão do `sw.js` com o número de `CACHE_NAME` incrementado (ex: `taxista-calc-v2`) para o celular baixar a atualização — isso já está preparado no código, só trocar o número.
+No iOS, só dá pra instalar um PWA na tela inicial pelo **Safari** — não funciona pelo Chrome ou outro navegador no iPhone (é uma limitação da Apple, não do app).
+
+1. Abra o link acima no **Safari**.
+2. Toque no ícone de **compartilhar** (o quadrado com uma seta pra cima), na barra inferior.
+3. Role a lista de opções e toque em **"Adicionar à Tela de Início"**.
+4. Confirme o nome (pode editar) e toque em **"Adicionar"** no canto superior direito.
+5. O ícone aparece na tela inicial e abre em tela cheia, como um app normal.
+
+> **Nota sobre offline no iPhone**: funciona igual ao Android, mas o Safari é historicamente mais agressivo limpando dados de sites que ficam muito tempo sem ser abertos (semanas). Se isso acontecer, basta abrir o app com internet uma vez que ele baixa tudo de novo. Os dados salvos (viagens, configurações) não se perdem por causa disso — só o cache de arquivos offline.
+
+Repita o processo no tablet também — é a mesma URL, funciona em cada aparelho independentemente, cada um guarda seus próprios dados salvos (localStorage é por aparelho/navegador, não sincroniza sozinho entre eles).
+
+> **Importante**: depois de instalado, o app guarda todo o cache na primeira abertura. Toda vez que eu alterar os arquivos, o número de `CACHE_NAME` em `sw.js` é incrementado — isso é o que faz o celular baixar a atualização na próxima vez que abrir com internet.
 
 ## Backup dos dados
 
