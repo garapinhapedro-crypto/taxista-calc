@@ -1,5 +1,7 @@
 # Taxista Calc
 
+🔗 **App no ar:** https://garapinhapedro-crypto.github.io/taxista-calc/
+
 Calculadora rápida de viagens para corretor de reboque/transporte de seguradora. PWA (Progressive Web App) que funciona **100% offline**, sem backend, sem frameworks, sem dependências externas. HTML + CSS + JavaScript puro.
 
 ## O que o app faz
