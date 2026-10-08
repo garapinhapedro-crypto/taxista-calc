@@ -1,5 +1,5 @@
 // Incremente a versão sempre que qualquer arquivo listado abaixo mudar.
-var CACHE_NAME = 'taxista-calc-v8';
+var CACHE_NAME = 'taxista-calc-v9';
 
 var ARQUIVOS = [
   './',
