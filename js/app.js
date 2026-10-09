@@ -589,6 +589,18 @@
 
   // ================= SERVICE WORKER =================
   if ('serviceWorker' in navigator) {
+    // Quando um novo service worker assume o controle (já ativado em segundo
+    // plano via skipWaiting/clients.claim no sw.js), recarrega sozinho.
+    // Sem isso, um app já aberto (principalmente instalado na tela inicial,
+    // onde reabrir o ícone às vezes só acorda a janela antiga em vez de
+    // carregar de novo) pode ficar preso numa versão velha indefinidamente.
+    var jaRecarregou = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (jaRecarregou) return;
+      jaRecarregou = true;
+      window.location.reload();
+    });
+
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').then(function (reg) {
         reg.addEventListener('updatefound', function () {
@@ -596,7 +608,7 @@
           if (!novo) return;
           novo.addEventListener('statechange', function () {
             if (novo.state === 'installed' && navigator.serviceWorker.controller) {
-              toast('Nova versão disponível. Reabra o app para atualizar.');
+              toast('Atualizando para a nova versão...');
             }
           });
         });
