@@ -25,6 +25,7 @@
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --radius: 14px;
   --nav-height: 64px;
+  --topo-fixo-height: 52px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -70,8 +71,32 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: calc(var(--topo-fixo-height) + env(safe-area-inset-top, 0px));
   padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===== Barra fixa com a logo (topo, acima de tudo) =====
+   Fundo preto fixo (não segue tema claro/escuro) porque a logo já
+   nasce com fundo preto — assim nunca aparece uma borda/caixa ao
+   redor dela, em nenhum dos dois temas. */
+header.topo-fixo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--topo-fixo-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #000000;
+  border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+header.topo-fixo img.logo-fixa {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
 button, input, select {

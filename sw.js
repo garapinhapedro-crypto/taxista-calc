@@ -1,5 +1,5 @@
 // Incremente a versão sempre que qualquer arquivo listado abaixo mudar.
-var CACHE_NAME = 'taxista-calc-v13';
+var CACHE_NAME = 'taxista-calc-v14';
 
 var ARQUIVOS = [
   './',
@@ -12,7 +12,8 @@ var ARQUIVOS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-192-maskable.png',
-  './icons/icon-512-maskable.png'
+  './icons/icon-512-maskable.png',
+  './icons/logo-header.png'
 ];
 
 self.addEventListener('install', function (event) {
