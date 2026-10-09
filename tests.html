@@ -69,6 +69,20 @@
     assert(approx(r.tripValue, 200), 'tripValue deveria ser 200, veio ' + r.tripValue);
   });
 
+  teste('Hora parada soma ao valor da viagem antes de teto/ideal/imposto', function () {
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, horaParada: 200 });
+    assert(approx(r.tripValue, 1200), 'tripValue deveria ser 1200 (1000 + 200 de hora parada), veio ' + r.tripValue);
+    assert(approx(r.ceiling, 1080), 'teto deveria ser 1080, veio ' + r.ceiling);
+    assert(approx(r.ideal, 960), 'ideal deveria ser 960, veio ' + r.ideal);
+    assert(approx(r.taxAmount, 120), 'imposto deveria ser 120, veio ' + r.taxAmount);
+  });
+
+  teste('Sem hora parada informada, comportamento não muda (0 por padrão)', function () {
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10 });
+    assert(r.horaParada === 0, 'horaParada deveria ser 0, veio ' + r.horaParada);
+    assert(approx(r.tripValue, 1000), 'tripValue deveria ser 1000, veio ' + r.tripValue);
+  });
+
   teste('R$/km de teto e ideal são divididos pelo km total', function () {
     var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10 });
     assert(approx(r.ceilingPerKm, 9), 'ceilingPerKm deveria ser 9, veio ' + r.ceilingPerKm);

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>Taxista Calc</title>
 <meta name="description" content="Calculadora rápida de viagens para corretor de reboque/transporte de seguradora.">
-<meta name="theme-color" content="#1f6feb" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#d4a017" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,6 +83,10 @@
   </div>
 
   <section class="card resultados">
+    <div class="resultado-linha">
+      <span class="rotulo">Hora parada (R$)</span>
+      <input id="horaParada" class="input-inline" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off">
+    </div>
     <div class="resultado-linha">
       <span class="rotulo">Teto (sem pagar imposto)</span>
       <span class="valor" id="resCeiling">R$ 0,00 <small id="resCeilingPerKm">R$ 0,00/km</small></span>

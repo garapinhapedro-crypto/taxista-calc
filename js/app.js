@@ -38,7 +38,8 @@
     ratePerKm: document.getElementById('ratePerKm'),
     taxPercent: document.getElementById('taxPercent'),
     marginPercent: document.getElementById('marginPercent'),
-    driverOffer: document.getElementById('driverOffer')
+    driverOffer: document.getElementById('driverOffer'),
+    horaParada: document.getElementById('horaParada')
   };
 
   var res = {
@@ -68,7 +69,8 @@
       ratePerKm: Calc.parseNumberBR(campos.ratePerKm.value),
       taxPercent: Calc.parseNumberBR(campos.taxPercent.value),
       marginPercent: Calc.parseNumberBR(campos.marginPercent.value),
-      driverOffer: campos.driverOffer.value.trim() === '' ? null : Calc.parseNumberBR(campos.driverOffer.value)
+      driverOffer: campos.driverOffer.value.trim() === '' ? null : Calc.parseNumberBR(campos.driverOffer.value),
+      horaParada: Calc.parseNumberBR(campos.horaParada.value)
     };
   }
 
@@ -168,6 +170,7 @@
       taxPercent: input.taxPercent,
       marginPercent: input.marginPercent,
       tripValue: r.tripValue,
+      horaParada: r.horaParada,
       ceiling: r.ceiling,
       ideal: r.ideal,
       taxAmount: r.taxAmount,
@@ -380,6 +383,7 @@
     document.getElementById('detalheTitulo').textContent = t.label || Calc.formatKm(t.totalKm);
     document.getElementById('detalheConteudo').innerHTML =
       linhaDetalhe('Km total', Calc.formatKm(t.totalKm)) +
+      (t.horaParada ? linhaDetalhe('Hora parada', Calc.formatBRL(t.horaParada)) : '') +
       linhaDetalhe('Valor da viagem', Calc.formatBRL(t.tripValue)) +
       linhaDetalhe('Teto', Calc.formatBRL(t.ceiling)) +
       linhaDetalhe('Ideal', Calc.formatBRL(t.ideal)) +
@@ -425,6 +429,7 @@
     campos.taxPercent.value = t.taxPercent != null ? String(t.taxPercent).replace('.', ',') : '';
     campos.marginPercent.value = t.marginPercent != null ? String(t.marginPercent).replace('.', ',') : '';
     campos.driverOffer.value = t.finalAmount != null ? String(t.finalAmount).replace('.', ',') : '';
+    campos.horaParada.value = t.horaParada ? String(t.horaParada).replace('.', ',') : '';
     recalcular();
     fecharOverlay('overlayDetalhe');
     irParaTela('telaCalcular');
@@ -444,7 +449,7 @@
   document.getElementById('btnExportarCSV').addEventListener('click', function () {
     var trips = Store.getTrips();
     if (trips.length === 0) { toast('Nenhuma viagem para exportar.'); return; }
-    var cols = ['Data', 'Rotulo', 'NumeroCorrida', 'KmTotal',
+    var cols = ['Data', 'Rotulo', 'NumeroCorrida', 'KmTotal', 'HoraParada',
       'RatePorKm', 'ImpostoPct', 'MargemPct', 'ValorViagem', 'Teto', 'Ideal', 'ImpostoValor',
       'Motorista', 'ValorFinalPago', 'Lucro'];
     var linhas = [cols.join(';')];
@@ -453,7 +458,7 @@
       var campo = function (v) { return v == null ? '' : String(v).replace('.', ','); };
       linhas.push([
         data, (t.label || '').replace(/;/g, ','), (t.runNumber || '').replace(/;/g, ','),
-        campo(t.totalKm), campo(t.ratePerKm), campo(t.taxPercent),
+        campo(t.totalKm), campo(t.horaParada), campo(t.ratePerKm), campo(t.taxPercent),
         campo(t.marginPercent), campo(t.tripValue), campo(t.ceiling), campo(t.ideal),
         campo(t.taxAmount),
         (t.driverName || '').replace(/;/g, ','), campo(t.finalAmount), campo(t.profit)

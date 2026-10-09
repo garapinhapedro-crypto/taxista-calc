@@ -41,6 +41,7 @@
    *  taxPercent: number (%)
    *  marginPercent: number (%)
    *  driverOffer: number|null (R$ oferecido ao taxista, opcional)
+   *  horaParada: number (R$ de hora parada, já calculado pelo usuário, opcional)
    * @returns {Object} resultado completo do cálculo
    */
   function calcularViagem(input) {
@@ -49,8 +50,10 @@
     var taxPercent = Math.max(0, Number(input.taxPercent) || 0);
     var marginPercent = Math.max(0, Number(input.marginPercent) || 0);
     var driverOffer = input.driverOffer == null ? null : Math.max(0, Number(input.driverOffer) || 0);
+    var horaParada = Math.max(0, Number(input.horaParada) || 0);
 
-    var tripValue = totalKm * ratePerKm;
+    // Hora parada entra na mesma "massa" que vira teto/ideal/imposto/lucro.
+    var tripValue = (totalKm * ratePerKm) + horaParada;
     var ceiling = tripValue * (1 - taxPercent / 100);
     var ideal = tripValue * (1 - taxPercent / 100 - marginPercent / 100);
 
@@ -60,6 +63,7 @@
 
     var result = {
       totalKm: safe(totalKm),
+      horaParada: safe(horaParada),
       tripValue: safe(tripValue),
       tripValuePerKm: safe(perKm(tripValue)),
       ceiling: safe(ceiling),
