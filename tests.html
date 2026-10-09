@@ -52,7 +52,7 @@
   // ---- Caso do enunciado: tripValue 1000, tax 10%, margin 10% ----
   teste('Exemplo do enunciado: 1000 / 10% / 10% -> teto 900, ideal 800, lucro 100', function () {
     var r = Calc.calcularViagem({
-      kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0,
+      totalKm: 100,
       ratePerKm: 10, taxPercent: 10, marginPercent: 10,
       driverOffer: 800
     });
@@ -63,43 +63,43 @@
     assert(r.status === 'verde', 'status deveria ser verde, veio ' + r.status);
   });
 
-  teste('Soma dos 3 trechos de km', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 30, kmOrigemDestino: 50, kmDestinoBase: 20, ratePerKm: 2, taxPercent: 0, marginPercent: 0 });
+  teste('Km total informado é usado diretamente', function () {
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 2, taxPercent: 0, marginPercent: 0 });
     assert(approx(r.totalKm, 100), 'totalKm deveria ser 100, veio ' + r.totalKm);
     assert(approx(r.tripValue, 200), 'tripValue deveria ser 200, veio ' + r.tripValue);
   });
 
   teste('R$/km de teto e ideal são divididos pelo km total', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10 });
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10 });
     assert(approx(r.ceilingPerKm, 9), 'ceilingPerKm deveria ser 9, veio ' + r.ceilingPerKm);
     assert(approx(r.idealPerKm, 8), 'idealPerKm deveria ser 8, veio ' + r.idealPerKm);
   });
 
   teste('Oferta igual ao ideal -> status verde', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 800 });
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 800 });
     assert(r.status === 'verde', 'esperado verde, veio ' + r.status);
   });
 
   teste('Oferta entre ideal e teto -> status amarelo, com lucro reduzido', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 850 });
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 850 });
     assert(r.status === 'amarelo', 'esperado amarelo, veio ' + r.status);
     assert(approx(r.profit, 50), 'lucro deveria ser 50, veio ' + r.profit);
   });
 
   teste('Oferta acima do teto -> status vermelho, com prejuízo calculado', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 950 });
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 950 });
     assert(r.status === 'vermelho', 'esperado vermelho, veio ' + r.status);
     assert(approx(r.lossAmount, 50), 'prejuízo deveria ser 50, veio ' + r.lossAmount);
   });
 
   teste('Sem oferta preenchida -> status nulo, sem lucro', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 100, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: null });
+    var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: null });
     assert(r.status === null, 'status deveria ser null, veio ' + r.status);
     assert(r.profit === null, 'profit deveria ser null, veio ' + r.profit);
   });
 
   teste('Km total zero não gera NaN/Infinity em nenhum campo', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: 0, kmOrigemDestino: 0, kmDestinoBase: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 50 });
+    var r = Calc.calcularViagem({ totalKm: 0, ratePerKm: 10, taxPercent: 10, marginPercent: 10, driverOffer: 50 });
     Object.keys(r).forEach(function (k) {
       var v = r[k];
       if (typeof v === 'number') {
@@ -109,7 +109,7 @@
   });
 
   teste('Valores negativos na entrada são tratados como 0', function () {
-    var r = Calc.calcularViagem({ kmBaseOrigem: -50, kmOrigemDestino: 20, kmDestinoBase: 0, ratePerKm: -5, taxPercent: -10, marginPercent: 10 });
+    var r = Calc.calcularViagem({ totalKm: -50, ratePerKm: -5, taxPercent: -10, marginPercent: 10 });
     assert(r.totalKm >= 0, 'totalKm não pode ser negativo');
     assert(r.tripValue >= 0, 'tripValue não pode ser negativo');
   });

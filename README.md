@@ -6,7 +6,7 @@ Calculadora rápida de viagens para corretor de reboque/transporte de seguradora
 
 ## O que o app faz
 
-- **Calcular**: informe os 3 trechos em km (base→origem, origem→destino, destino→base), o R$/km pago pela seguradora, o imposto % e a margem % — o app mostra em destaque o **Valor total da viagem** e o **Ideal** (valor que cobre o imposto e deixa sua margem de lucro), e logo abaixo o **Teto (sem pagar imposto)**, o **imposto a pagar** e o **lucro estimado**. O lucro estimado já vem calculado por padrão assumindo que você vai pagar o Ideal ao motorista — se preencher "oferta ao taxista" com outro valor, o lucro (e um aviso verde/amarelo/vermelho) recalcula com base nesse valor digitado.
+- **Calcular**: informe o **km total rodado**, o R$/km pago pela seguradora, o imposto % e a margem % — o app mostra em destaque o **Valor total da viagem** e o **Ideal** (valor que cobre o imposto e deixa sua margem de lucro), e logo abaixo o **Teto (sem pagar imposto)**, o **imposto a pagar** e o **lucro estimado**. O lucro estimado já vem calculado por padrão assumindo que você vai pagar o Ideal ao motorista — se preencher "oferta ao taxista" com outro valor, o lucro (e um aviso verde/amarelo/vermelho) recalcula com base nesse valor digitado.
 - **Calculadora embutida**: ícone 🧮 no topo da tela Calcular, pra contas rápidas sem sair do app.
 - **Histórico**: lista de viagens salvas, com filtros por mês, data específica, motorista e número da corrida (combináveis entre si), totais calculados em cima do que está filtrado, exportação em CSV (compatível com Excel em português) pra mandar pro contador. Ao salvar uma viagem, dá pra informar um **número da corrida** opcional (útil se a seguradora fornece um código pra cada chamado) — editável depois também, no detalhe da viagem.
 - **Configurações**: imposto e margem padrão, R$/km padrão, lista de motoristas, backup/restauração dos dados em JSON.
@@ -77,7 +77,7 @@ js/app.js             - liga a interface às funções de cálculo e armazenamen
 icons/                - ícones do PWA (192px e 512px, normais e "maskable")
 ```
 
-`js/calc.js` foi propositalmente isolado da interface: os campos de km continuam sendo a única fonte de verdade, então no futuro dá para plugar a API do Google Maps Routes só para *preencher* esses campos automaticamente (origem/destino/base), sem mexer em nada do cálculo.
+`js/calc.js` foi propositalmente isolado da interface: o km total continua sendo a única fonte de verdade, então no futuro dá para plugar qualquer fonte automática (ex: API de rotas) só para *preencher* esse campo, sem mexer em nada do cálculo.
 
 ## Limitações conhecidas
 

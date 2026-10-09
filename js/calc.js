@@ -1,8 +1,8 @@
 /**
  * Núcleo de cálculo — funções puras, sem efeitos colaterais.
- * Isolado de propósito: reutilizável pelos testes e pela futura
- * integração com Google Maps Routes API (que só vai preencher os
- * campos de km; os km continuam sendo a fonte única de verdade).
+ * Isolado de propósito: reutilizável pelos testes e por qualquer
+ * fonte futura de preenchimento do km (o km total continua sendo a
+ * fonte única de verdade).
  */
 (function (global) {
   'use strict';
@@ -36,7 +36,7 @@
   /**
    * Calcula os valores da viagem.
    * @param {Object} input
-   *  kmBaseOrigem, kmOrigemDestino, kmDestinoBase: number (km)
+   *  totalKm: number (km total rodado)
    *  ratePerKm: number (R$/km pago pela seguradora)
    *  taxPercent: number (%)
    *  marginPercent: number (%)
@@ -44,15 +44,12 @@
    * @returns {Object} resultado completo do cálculo
    */
   function calcularViagem(input) {
-    var kmBaseOrigem = Math.max(0, Number(input.kmBaseOrigem) || 0);
-    var kmOrigemDestino = Math.max(0, Number(input.kmOrigemDestino) || 0);
-    var kmDestinoBase = Math.max(0, Number(input.kmDestinoBase) || 0);
+    var totalKm = Math.max(0, Number(input.totalKm) || 0);
     var ratePerKm = Math.max(0, Number(input.ratePerKm) || 0);
     var taxPercent = Math.max(0, Number(input.taxPercent) || 0);
     var marginPercent = Math.max(0, Number(input.marginPercent) || 0);
     var driverOffer = input.driverOffer == null ? null : Math.max(0, Number(input.driverOffer) || 0);
 
-    var totalKm = kmBaseOrigem + kmOrigemDestino + kmDestinoBase;
     var tripValue = totalKm * ratePerKm;
     var ceiling = tripValue * (1 - taxPercent / 100);
     var ideal = tripValue * (1 - taxPercent / 100 - marginPercent / 100);

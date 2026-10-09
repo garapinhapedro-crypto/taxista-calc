@@ -130,11 +130,6 @@ header.topo .subtitulo {
   color: var(--text);
   width: 100%;
 }
-.linha-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
 .linha-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

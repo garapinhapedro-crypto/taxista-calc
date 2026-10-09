@@ -34,9 +34,7 @@
 
   // ================= TELA CALCULAR =================
   var campos = {
-    kmBaseOrigem: document.getElementById('kmBaseOrigem'),
-    kmOrigemDestino: document.getElementById('kmOrigemDestino'),
-    kmDestinoBase: document.getElementById('kmDestinoBase'),
+    kmTotal: document.getElementById('kmTotal'),
     ratePerKm: document.getElementById('ratePerKm'),
     taxPercent: document.getElementById('taxPercent'),
     marginPercent: document.getElementById('marginPercent'),
@@ -66,9 +64,7 @@
 
   function lerInputs() {
     return {
-      kmBaseOrigem: Calc.parseNumberBR(campos.kmBaseOrigem.value),
-      kmOrigemDestino: Calc.parseNumberBR(campos.kmOrigemDestino.value),
-      kmDestinoBase: Calc.parseNumberBR(campos.kmDestinoBase.value),
+      totalKm: Calc.parseNumberBR(campos.kmTotal.value),
       ratePerKm: Calc.parseNumberBR(campos.ratePerKm.value),
       taxPercent: Calc.parseNumberBR(campos.taxPercent.value),
       marginPercent: Calc.parseNumberBR(campos.marginPercent.value),
@@ -167,9 +163,6 @@
       createdAt: new Date().toISOString(),
       label: document.getElementById('inputLabel').value.trim(),
       runNumber: document.getElementById('inputNumeroCorrida').value.trim() || null,
-      kmBaseOrigem: input.kmBaseOrigem,
-      kmOrigemDestino: input.kmOrigemDestino,
-      kmDestinoBase: input.kmDestinoBase,
       totalKm: r.totalKm,
       ratePerKm: input.ratePerKm,
       taxPercent: input.taxPercent,
@@ -427,9 +420,7 @@
     if (!detalheAtualId) return;
     var t = Store.getTrips().find(function (x) { return x.id === detalheAtualId; });
     if (!t) return;
-    campos.kmBaseOrigem.value = t.kmBaseOrigem ? String(t.kmBaseOrigem).replace('.', ',') : '';
-    campos.kmOrigemDestino.value = t.kmOrigemDestino ? String(t.kmOrigemDestino).replace('.', ',') : '';
-    campos.kmDestinoBase.value = t.kmDestinoBase ? String(t.kmDestinoBase).replace('.', ',') : '';
+    campos.kmTotal.value = t.totalKm ? String(t.totalKm).replace('.', ',') : '';
     campos.ratePerKm.value = t.ratePerKm ? String(t.ratePerKm).replace('.', ',') : '';
     campos.taxPercent.value = t.taxPercent != null ? String(t.taxPercent).replace('.', ',') : '';
     campos.marginPercent.value = t.marginPercent != null ? String(t.marginPercent).replace('.', ',') : '';
@@ -453,7 +444,7 @@
   document.getElementById('btnExportarCSV').addEventListener('click', function () {
     var trips = Store.getTrips();
     if (trips.length === 0) { toast('Nenhuma viagem para exportar.'); return; }
-    var cols = ['Data', 'Rotulo', 'NumeroCorrida', 'KmBaseOrigem', 'KmOrigemDestino', 'KmDestinoBase', 'KmTotal',
+    var cols = ['Data', 'Rotulo', 'NumeroCorrida', 'KmTotal',
       'RatePorKm', 'ImpostoPct', 'MargemPct', 'ValorViagem', 'Teto', 'Ideal', 'ImpostoValor',
       'Motorista', 'ValorFinalPago', 'Lucro'];
     var linhas = [cols.join(';')];
@@ -462,8 +453,7 @@
       var campo = function (v) { return v == null ? '' : String(v).replace('.', ','); };
       linhas.push([
         data, (t.label || '').replace(/;/g, ','), (t.runNumber || '').replace(/;/g, ','),
-        campo(t.kmBaseOrigem), campo(t.kmOrigemDestino),
-        campo(t.kmDestinoBase), campo(t.totalKm), campo(t.ratePerKm), campo(t.taxPercent),
+        campo(t.totalKm), campo(t.ratePerKm), campo(t.taxPercent),
         campo(t.marginPercent), campo(t.tripValue), campo(t.ceiling), campo(t.ideal),
         campo(t.taxAmount),
         (t.driverName || '').replace(/;/g, ','), campo(t.finalAmount), campo(t.profit)
