@@ -147,6 +147,7 @@
     }
     document.getElementById('inputValorFinal').value = campos.driverOffer.value || '';
     document.getElementById('inputLabel').value = '';
+    document.getElementById('inputNumeroCorrida').value = '';
     document.getElementById('inputMotorista').value = '';
     atualizarDatalistMotoristas();
     abrirOverlay('overlaySalvar');
@@ -165,6 +166,7 @@
     var trip = {
       createdAt: new Date().toISOString(),
       label: document.getElementById('inputLabel').value.trim(),
+      runNumber: document.getElementById('inputNumeroCorrida').value.trim() || null,
       kmBaseOrigem: input.kmBaseOrigem,
       kmOrigemDestino: input.kmOrigemDestino,
       kmDestinoBase: input.kmDestinoBase,
@@ -268,23 +270,43 @@
     var nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     return nomes[parseInt(partes[1], 10) - 1] + '/' + partes[0];
   }
+  function dataChave(isoDate) {
+    var d = new Date(isoDate);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
 
   var filtroMesSelect = document.getElementById('filtroMes');
+  var filtroDataInput = document.getElementById('filtroData');
+  var filtroMotoristaSelect = document.getElementById('filtroMotorista');
+  var filtroNumeroCorridaInput = document.getElementById('filtroNumeroCorrida');
 
   function renderHistorico() {
     var trips = Store.getTrips();
 
     var meses = Array.from(new Set(trips.map(function (t) { return mesChave(t.createdAt); }))).sort().reverse();
-    var selecionado = filtroMesSelect.value || 'todos';
+    var mesSelecionado = filtroMesSelect.value || 'todos';
     filtroMesSelect.innerHTML = '<option value="todos">Todos os meses</option>' +
       meses.map(function (m) { return '<option value="' + m + '">' + mesLabel(m) + '</option>'; }).join('');
-    if ([].slice.call(filtroMesSelect.options).some(function (o) { return o.value === selecionado; })) {
-      filtroMesSelect.value = selecionado;
-    } else {
-      filtroMesSelect.value = 'todos';
-    }
+    filtroMesSelect.value = [].slice.call(filtroMesSelect.options).some(function (o) { return o.value === mesSelecionado; }) ? mesSelecionado : 'todos';
 
-    var filtrados = filtroMesSelect.value === 'todos' ? trips : trips.filter(function (t) { return mesChave(t.createdAt) === filtroMesSelect.value; });
+    var motoristas = Array.from(new Set(
+      (settingsCache.drivers || []).concat(trips.filter(function (t) { return t.driverName; }).map(function (t) { return t.driverName; }))
+    )).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); });
+    var motoristaSelecionado = filtroMotoristaSelect.value || 'todos';
+    filtroMotoristaSelect.innerHTML = '<option value="todos">Todos os motoristas</option>' +
+      motoristas.map(function (m) { return '<option value="' + escapeHtml(m) + '">' + escapeHtml(m) + '</option>'; }).join('');
+    filtroMotoristaSelect.value = [].slice.call(filtroMotoristaSelect.options).some(function (o) { return o.value === motoristaSelecionado; }) ? motoristaSelecionado : 'todos';
+
+    var dataFiltro = filtroDataInput.value;
+    var numeroCorridaFiltro = filtroNumeroCorridaInput.value.trim().toLowerCase();
+
+    var filtrados = trips.filter(function (t) {
+      if (filtroMesSelect.value !== 'todos' && mesChave(t.createdAt) !== filtroMesSelect.value) return false;
+      if (dataFiltro && dataChave(t.createdAt) !== dataFiltro) return false;
+      if (filtroMotoristaSelect.value !== 'todos' && t.driverName !== filtroMotoristaSelect.value) return false;
+      if (numeroCorridaFiltro && !(t.runNumber && t.runNumber.toLowerCase().indexOf(numeroCorridaFiltro) !== -1)) return false;
+      return true;
+    });
 
     var totTripValue = 0, totTax = 0, totPago = 0, totLucro = 0;
     filtrados.forEach(function (t) {
@@ -302,17 +324,18 @@
 
     var lista = document.getElementById('listaViagens');
     if (filtrados.length === 0) {
-      lista.innerHTML = '<div class="vazio">Nenhuma viagem salva ainda.</div>';
+      lista.innerHTML = '<div class="vazio">Nenhuma viagem encontrada.</div>';
       return;
     }
     lista.innerHTML = filtrados.map(function (t) {
       var data = new Date(t.createdAt);
       var dataStr = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (t.runNumber) dataStr += ' · Corrida ' + t.runNumber;
       var titulo = t.label || (t.driverName ? 'Motorista: ' + t.driverName : Calc.formatKm(t.totalKm));
       return '<div class="item-viagem" data-id="' + t.id + '">' +
         '<div class="info-principal">' +
         '<div class="label-viagem">' + escapeHtml(titulo) + '</div>' +
-        '<div class="data-viagem">' + dataStr + '</div>' +
+        '<div class="data-viagem">' + escapeHtml(dataStr) + '</div>' +
         '</div>' +
         '<div class="valor-viagem">' + Calc.formatBRL(t.tripValue) + '<small>' + Calc.formatKm(t.totalKm) + '</small></div>' +
         '</div>';
@@ -324,6 +347,17 @@
   }
 
   filtroMesSelect.addEventListener('change', renderHistorico);
+  filtroDataInput.addEventListener('change', renderHistorico);
+  filtroMotoristaSelect.addEventListener('change', renderHistorico);
+  filtroNumeroCorridaInput.addEventListener('input', renderHistorico);
+
+  document.getElementById('btnLimparFiltros').addEventListener('click', function () {
+    filtroMesSelect.value = 'todos';
+    filtroDataInput.value = '';
+    filtroMotoristaSelect.value = 'todos';
+    filtroNumeroCorridaInput.value = '';
+    renderHistorico();
+  });
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -346,6 +380,7 @@
       linhaDetalhe('Ideal', Calc.formatBRL(t.ideal)) +
       linhaDetalhe('Imposto/Margem', t.taxPercent + '% / ' + t.marginPercent + '%');
     atualizarDatalistMotoristas();
+    document.getElementById('detalheNumeroCorrida').value = t.runNumber || '';
     document.getElementById('detalheMotorista').value = t.driverName || '';
     document.getElementById('detalheValorFinal').value = t.finalAmount != null ? String(t.finalAmount).replace('.', ',') : '';
     abrirOverlay('overlayDetalhe');
@@ -362,10 +397,11 @@
     var t = Store.getTrips().find(function (x) { return x.id === detalheAtualId; });
     if (!t) return;
     var motorista = document.getElementById('detalheMotorista').value.trim();
+    var numeroCorrida = document.getElementById('detalheNumeroCorrida').value.trim();
     var valorStr = document.getElementById('detalheValorFinal').value;
     var valorFinal = valorStr.trim() === '' ? null : Calc.parseNumberBR(valorStr);
     var lucro = valorFinal != null ? (t.tripValue - t.taxAmount - valorFinal) : null;
-    Store.updateTrip(detalheAtualId, { driverName: motorista || null, finalAmount: valorFinal, profit: lucro });
+    Store.updateTrip(detalheAtualId, { driverName: motorista || null, runNumber: numeroCorrida || null, finalAmount: valorFinal, profit: lucro });
     if (motorista && settingsCache.drivers.indexOf(motorista) === -1) {
       settingsCache.drivers.push(motorista);
       Store.saveSettings(settingsCache);
@@ -405,7 +441,7 @@
   document.getElementById('btnExportarCSV').addEventListener('click', function () {
     var trips = Store.getTrips();
     if (trips.length === 0) { toast('Nenhuma viagem para exportar.'); return; }
-    var cols = ['Data', 'Rotulo', 'KmBaseOrigem', 'KmOrigemDestino', 'KmDestinoBase', 'KmTotal',
+    var cols = ['Data', 'Rotulo', 'NumeroCorrida', 'KmBaseOrigem', 'KmOrigemDestino', 'KmDestinoBase', 'KmTotal',
       'RatePorKm', 'ImpostoPct', 'MargemPct', 'ValorViagem', 'Teto', 'Ideal', 'ImpostoValor',
       'Motorista', 'ValorFinalPago', 'Lucro'];
     var linhas = [cols.join(';')];
@@ -413,7 +449,8 @@
       var data = new Date(t.createdAt).toLocaleString('pt-BR');
       var campo = function (v) { return v == null ? '' : String(v).replace('.', ','); };
       linhas.push([
-        data, (t.label || '').replace(/;/g, ','), campo(t.kmBaseOrigem), campo(t.kmOrigemDestino),
+        data, (t.label || '').replace(/;/g, ','), (t.runNumber || '').replace(/;/g, ','),
+        campo(t.kmBaseOrigem), campo(t.kmOrigemDestino),
         campo(t.kmDestinoBase), campo(t.totalKm), campo(t.ratePerKm), campo(t.taxPercent),
         campo(t.marginPercent), campo(t.tripValue), campo(t.ceiling), campo(t.ideal),
         campo(t.taxAmount),

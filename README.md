@@ -8,7 +8,7 @@ Calculadora rápida de viagens para corretor de reboque/transporte de seguradora
 
 - **Calcular**: informe os 3 trechos em km (base→origem, origem→destino, destino→base), o R$/km pago pela seguradora, o imposto % e a margem % — o app mostra em destaque o **Valor total da viagem** e o **Ideal** (valor que cobre o imposto e deixa sua margem de lucro), e logo abaixo o **Teto (sem pagar imposto)**, o **imposto a pagar** e o **lucro estimado**. O lucro estimado já vem calculado por padrão assumindo que você vai pagar o Ideal ao motorista — se preencher "oferta ao taxista" com outro valor, o lucro (e um aviso verde/amarelo/vermelho) recalcula com base nesse valor digitado.
 - **Calculadora embutida**: ícone 🧮 no topo da tela Calcular, pra contas rápidas sem sair do app.
-- **Histórico**: lista de viagens salvas, totais do mês, exportação em CSV (compatível com Excel em português) pra mandar pro contador.
+- **Histórico**: lista de viagens salvas, com filtros por mês, data específica, motorista e número da corrida (combináveis entre si), totais calculados em cima do que está filtrado, exportação em CSV (compatível com Excel em português) pra mandar pro contador. Ao salvar uma viagem, dá pra informar um **número da corrida** opcional (útil se a seguradora fornece um código pra cada chamado) — editável depois também, no detalhe da viagem.
 - **Configurações**: imposto e margem padrão, R$/km padrão, lista de motoristas, backup/restauração dos dados em JSON.
 
 ## Como rodar no computador (teste rápido)

@@ -340,14 +340,6 @@ nav.nav-inferior button.ativo { color: var(--primary); }
   font-size: 14px;
 }
 
-select.filtro-mes {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
 /* ===== Modal / Drawer ===== */
 .overlay {
   position: fixed;

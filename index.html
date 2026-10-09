@@ -120,8 +120,31 @@
       <h1>Histórico</h1>
       <div class="subtitulo">Viagens salvas</div>
     </div>
-    <select id="filtroMes" class="filtro-mes" aria-label="Filtrar por mês"></select>
   </header>
+
+  <section class="card">
+    <div class="linha-2">
+      <div class="campo">
+        <label for="filtroMes">Mês</label>
+        <select id="filtroMes" aria-label="Filtrar por mês"></select>
+      </div>
+      <div class="campo">
+        <label for="filtroData">Data específica</label>
+        <input id="filtroData" type="date" aria-label="Filtrar por data">
+      </div>
+    </div>
+    <div class="linha-2" style="margin-top:8px">
+      <div class="campo">
+        <label for="filtroMotorista">Motorista</label>
+        <select id="filtroMotorista" aria-label="Filtrar por motorista"></select>
+      </div>
+      <div class="campo">
+        <label for="filtroNumeroCorrida">Número da corrida</label>
+        <input id="filtroNumeroCorrida" type="text" placeholder="buscar" aria-label="Filtrar por número da corrida">
+      </div>
+    </div>
+    <button id="btnLimparFiltros" class="btn btn-secundario btn-bloco" style="margin-top:8px">Limpar filtros</button>
+  </section>
 
   <div class="totais-historico">
     <div class="total-item"><div class="rotulo">Viagens</div><div class="valor" id="totalViagens">0</div></div>
@@ -253,6 +276,10 @@
       <input id="inputLabel" type="text" placeholder="ex: Ibatiba → Vitória">
     </div>
     <div class="campo">
+      <label for="inputNumeroCorrida">Número da corrida (opcional)</label>
+      <input id="inputNumeroCorrida" type="text" placeholder="ex: 12345">
+    </div>
+    <div class="campo">
       <label for="inputMotorista">Motorista (opcional)</label>
       <input id="inputMotorista" type="text" list="dataListMotoristas" placeholder="Nome">
       <datalist id="dataListMotoristas"></datalist>
@@ -273,6 +300,10 @@
       <button class="btn-icone" id="btnFecharDetalhe" aria-label="Fechar">✕</button>
     </div>
     <div class="resultados" id="detalheConteudo"></div>
+    <div class="campo">
+      <label for="detalheNumeroCorrida">Número da corrida</label>
+      <input id="detalheNumeroCorrida" type="text" placeholder="opcional">
+    </div>
     <div class="campo">
       <label for="detalheMotorista">Motorista</label>
       <input id="detalheMotorista" type="text" list="dataListMotoristas">
