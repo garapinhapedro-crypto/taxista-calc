@@ -230,7 +230,19 @@
     } else if (key === 'C') {
       calcState = { atual: '0', anterior: null, operador: null, resetarProximo: false };
     } else if (key === '%') {
-      calcState.atual = String(paraNumero(calcState.atual) / 100).replace('.', ',');
+      var atualNum = paraNumero(calcState.atual);
+      var pct;
+      if (calcState.operador && calcState.anterior != null) {
+        // Com operação pendente: % sobre o primeiro valor (ex: 200 + 10% = 200 + 20).
+        // Em x/÷ o % já é o próprio fator (ex: 200 × 10% = 200 × 0,10).
+        pct = (calcState.operador === '+' || calcState.operador === '-')
+          ? calcState.anterior * (atualNum / 100)
+          : atualNum / 100;
+      } else {
+        pct = atualNum / 100;
+      }
+      calcState.atual = String(pct).replace('.', ',');
+      calcState.resetarProximo = true;
     } else if (key === '=') {
       if (calcState.operador && calcState.anterior != null) {
         var r = calcularOperacao(calcState.anterior, paraNumero(calcState.atual), calcState.operador);
