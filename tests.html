@@ -69,12 +69,13 @@
     assert(approx(r.tripValue, 200), 'tripValue deveria ser 200, veio ' + r.tripValue);
   });
 
-  teste('Hora parada soma ao valor da viagem antes de teto/ideal/imposto', function () {
+  teste('Hora parada soma ao valor da viagem mas não é tributada e não perde margem', function () {
     var r = Calc.calcularViagem({ totalKm: 100, ratePerKm: 10, taxPercent: 10, marginPercent: 10, horaParada: 200 });
     assert(approx(r.tripValue, 1200), 'tripValue deveria ser 1200 (1000 + 200 de hora parada), veio ' + r.tripValue);
-    assert(approx(r.ceiling, 1080), 'teto deveria ser 1080, veio ' + r.ceiling);
-    assert(approx(r.ideal, 960), 'ideal deveria ser 960, veio ' + r.ideal);
-    assert(approx(r.taxAmount, 120), 'imposto deveria ser 120, veio ' + r.taxAmount);
+    assert(approx(r.taxAmount, 100), 'imposto deveria ser 100 (só sobre o km, não sobre a hora parada), veio ' + r.taxAmount);
+    assert(approx(r.marginAmount, 100), 'margem deveria ser 100 (só sobre o km, não sobre a hora parada), veio ' + r.marginAmount);
+    assert(approx(r.ceiling, 1100), 'teto deveria ser 1100 (900 de km sem imposto + 200 de hora parada cheia), veio ' + r.ceiling);
+    assert(approx(r.ideal, 1000), 'ideal deveria ser 1000 (800 de km com imposto/margem + 200 de hora parada cheia), veio ' + r.ideal);
   });
 
   teste('Sem hora parada informada, comportamento não muda (0 por padrão)', function () {
