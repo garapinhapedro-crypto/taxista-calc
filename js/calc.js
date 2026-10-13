@@ -52,10 +52,16 @@
     var driverOffer = input.driverOffer == null ? null : Math.max(0, Number(input.driverOffer) || 0);
     var horaParada = Math.max(0, Number(input.horaParada) || 0);
 
-    // Hora parada entra na mesma "massa" que vira teto/ideal/imposto/lucro.
-    var tripValue = (totalKm * ratePerKm) + horaParada;
-    var ceiling = tripValue * (1 - taxPercent / 100);
-    var ideal = tripValue * (1 - taxPercent / 100 - marginPercent / 100);
+    // Km rodado é a única base de imposto/margem. Hora parada é repassada
+    // integralmente ao motorista (sem desconto de imposto nem de margem),
+    // então entra de volta inteira no teto/ideal, só não entra na base
+    // que gera imposto e margem.
+    var kmValue = totalKm * ratePerKm;
+    var tripValue = kmValue + horaParada;
+    var taxAmount = kmValue * (taxPercent / 100);
+    var marginAmount = kmValue * (marginPercent / 100);
+    var ceiling = (kmValue - taxAmount) + horaParada;
+    var ideal = (kmValue - taxAmount - marginAmount) + horaParada;
 
     function perKm(total) {
       return totalKm > 0 ? total / totalKm : 0;
@@ -70,10 +76,10 @@
       ceilingPerKm: safe(perKm(ceiling)),
       ideal: safe(ideal),
       idealPerKm: safe(perKm(ideal)),
-      taxAmount: safe(tripValue * (taxPercent / 100)),
-      taxAmountPerKm: safe(perKm(tripValue * (taxPercent / 100))),
-      marginAmount: safe(tripValue * (marginPercent / 100)),
-      marginAmountPerKm: safe(perKm(tripValue * (marginPercent / 100))),
+      taxAmount: safe(taxAmount),
+      taxAmountPerKm: safe(perKm(taxAmount)),
+      marginAmount: safe(marginAmount),
+      marginAmountPerKm: safe(perKm(marginAmount)),
       status: null,
       profit: null,
       profitPerKm: null,
@@ -82,7 +88,6 @@
     };
 
     if (driverOffer != null && driverOffer > 0) {
-      var taxAmount = tripValue * (taxPercent / 100);
       var profit = tripValue - taxAmount - driverOffer;
       result.offerPerKm = safe(perKm(driverOffer));
       result.profit = safe(profit);
